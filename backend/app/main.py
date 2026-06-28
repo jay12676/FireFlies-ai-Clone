@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from .database import Base, SessionLocal, engine
-from .routers import action_items, meetings, search
+from .routers import action_items, highlights, meetings, search
 
 
 def create_app() -> FastAPI:
@@ -25,6 +25,7 @@ def create_app() -> FastAPI:
     api_prefix = "/api"
     app.include_router(meetings.router, prefix=api_prefix)
     app.include_router(action_items.router, prefix=api_prefix)
+    app.include_router(highlights.router, prefix=api_prefix)
     app.include_router(search.router, prefix=api_prefix)
 
     @app.get("/api/health", tags=["health"])

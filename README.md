@@ -42,8 +42,14 @@ delete, upload transcripts, manage action items).
 - 💾 Everything persists in SQLite.
 
 **Bonus included**
+- 💬 **Comments / highlights / soundbites** — hover any transcript line to highlight
+  it and attach a comment; saved clips appear in a **Notes** tab (click to seek).
+- 🤖 **"Ask this meeting" chat** — ask questions and get answers drawn from the
+  transcript with **clickable citations** (speaker + timestamp). Rule-based
+  retrieval with intent routing (action items / decisions / who / general) — no
+  API key required; a clean hook is left to swap in a real LLM.
 - 🌐 Global search across all meetings' transcripts (grouped results).
-- ⬇️ Export transcript + summary to **Markdown** or **TXT**.
+- ⬇️ Export transcript + summary to **Markdown**, **TXT**, or **PDF**.
 - 🌙 Dark mode (persisted).
 - 🏷️ Tags + filtering.
 - 🔔 Toast notifications, modals, loading skeletons, empty states.
@@ -80,6 +86,7 @@ Zoom/Meet/calendar/CRM integrations, team/sharing, real authentication
 - `crud.py` — the only layer that touches the ORM; all DB operations live here.
 - `services/parser.py` — converts uploaded `.txt`/`.vtt`/`.json` into segments.
 - `services/generator.py` — rule-based summary / action items / topics.
+- `services/ask.py` — rule-based Q&A retrieval over the transcript with intent routing.
 - `models.py` / `schemas.py` — ORM models vs. Pydantic request/response models.
 - `seed.py` — sample data; auto-seeds on startup when the DB is empty.
 
@@ -116,10 +123,17 @@ action_items     │        order_index    │               id PK              
   created_at     │        tag_id FK ──────────────────────────────────────────┘
 ```
 
+```
+highlights  (comments / highlights / soundbites)
+  id PK · meeting_id FK · segment_id FK (nullable, SET NULL)
+  quote · note · speaker · color · start_ms · end_ms · created_at
+```
+
 **Relationships**
-- `Meeting` 1─N `Participant`, `TranscriptSegment`, `KeyTopic`, `ActionItem`
+- `Meeting` 1─N `Participant`, `TranscriptSegment`, `KeyTopic`, `ActionItem`, `Highlight`
 - `Meeting` 1─1 `Summary`
 - `Meeting` M─N `Tag` (via `meeting_tags`)
+- `Highlight` N─1 `TranscriptSegment` (nullable; survives transcript replacement)
 - All children **cascade-delete** when a meeting is deleted.
 
 ---
@@ -140,6 +154,10 @@ Base path: `/api`
 | POST   | `/meetings/{id}/action-items` | Add an action item |
 | PATCH  | `/action-items/{id}` | Edit / toggle complete |
 | DELETE | `/action-items/{id}` | Delete an action item |
+| POST   | `/meetings/{id}/highlights` | Add a highlight/comment (soundbite) on a segment |
+| PATCH  | `/highlights/{id}` | Edit a highlight's note/color |
+| DELETE | `/highlights/{id}` | Delete a highlight |
+| POST   | `/meetings/{id}/ask` | Ask a question; returns an answer + cited segments |
 | GET    | `/search?q=` | Global search across all transcript segments |
 
 Interactive API docs are available at **`http://localhost:8000/docs`** (Swagger UI).

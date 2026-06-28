@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import type { ActionItem, MeetingDetail } from "@/lib/types";
+import type { ActionItem, Highlight, MeetingDetail, Segment } from "@/lib/types";
 import { api, formatDate, formatDuration } from "@/lib/api";
 import { useToast } from "@/context/ToastContext";
 import MediaPlayer from "@/components/MediaPlayer";
@@ -85,6 +85,25 @@ export default function MeetingDetailPage() {
 
   const setActionItems = (items: ActionItem[]) =>
     setMeeting((m) => (m ? { ...m, action_items: items } : m));
+
+  const addHighlight = async (seg: Segment, note: string) => {
+    const hl = await api.addHighlight(id, {
+      segment_id: seg.id,
+      quote: seg.text,
+      note,
+      speaker: seg.speaker,
+      start_ms: seg.start_ms,
+      end_ms: seg.end_ms,
+    });
+    setMeeting((m) => (m ? { ...m, highlights: [...m.highlights, hl] } : m));
+    notify(note ? "Comment added" : "Highlight saved");
+  };
+
+  const deleteHighlight = async (h: Highlight) => {
+    await api.deleteHighlight(h.id);
+    setMeeting((m) => (m ? { ...m, highlights: m.highlights.filter((x) => x.id !== h.id) } : m));
+    notify("Highlight removed");
+  };
 
   if (loading) {
     return (
@@ -174,10 +193,21 @@ export default function MeetingDetailPage() {
       {/* Two-panel body */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
         <div className="min-h-[400px] lg:h-[calc(100vh-330px)]">
-          <TranscriptPanel segments={meeting.segments} currentMs={currentMs} onSeek={seekTo} />
+          <TranscriptPanel
+            segments={meeting.segments}
+            currentMs={currentMs}
+            onSeek={seekTo}
+            highlights={meeting.highlights}
+            onAddHighlight={addHighlight}
+          />
         </div>
         <div className="min-h-[400px] lg:h-[calc(100vh-330px)]">
-          <MeetingTabs meeting={meeting} onSeek={seekTo} onActionItemsChange={setActionItems} />
+          <MeetingTabs
+            meeting={meeting}
+            onSeek={seekTo}
+            onActionItemsChange={setActionItems}
+            onDeleteHighlight={deleteHighlight}
+          />
         </div>
       </div>
 

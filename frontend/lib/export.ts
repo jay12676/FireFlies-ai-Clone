@@ -54,6 +54,51 @@ export function buildText(m: MeetingDetail): string {
   return lines.join("\n");
 }
 
+export async function downloadPdf(m: MeetingDetail) {
+  // jsPDF is loaded lazily so it never bloats the initial bundle.
+  const { jsPDF } = await import("jspdf");
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const margin = 48;
+  const width = doc.internal.pageSize.getWidth() - margin * 2;
+  const bottom = doc.internal.pageSize.getHeight() - margin;
+  let y = margin;
+
+  const writeLine = (text: string, size: number, bold = false, gap = 6) => {
+    doc.setFont("helvetica", bold ? "bold" : "normal");
+    doc.setFontSize(size);
+    const lines = doc.splitTextToSize(text, width) as string[];
+    for (const line of lines) {
+      if (y > bottom) {
+        doc.addPage();
+        y = margin;
+      }
+      doc.text(line, margin, y);
+      y += size + gap;
+    }
+  };
+
+  writeLine(m.title, 18, true, 10);
+  writeLine(`${formatDate(m.date)}  ·  ${m.participants.map((p) => p.name).join(", ") || "—"}`, 10, false, 14);
+
+  if (m.summary?.overview) {
+    writeLine("Summary", 13, true);
+    writeLine(m.summary.overview, 11, false, 12);
+  }
+  if (m.action_items.length) {
+    writeLine("Action Items", 13, true);
+    m.action_items.forEach((a) =>
+      writeLine(`${a.completed ? "[x]" : "[ ]"} ${a.text} (${a.assignee}${a.due_date ? ", " + a.due_date : ""})`, 11)
+    );
+    y += 6;
+  }
+  if (m.segments.length) {
+    writeLine("Transcript", 13, true);
+    m.segments.forEach((s) => writeLine(`[${formatTimestamp(s.start_ms)}] ${s.speaker}: ${s.text}`, 10, false, 5));
+  }
+
+  doc.save(`${slugify(m.title)}.pdf`);
+}
+
 export function download(filename: string, content: string, type: string) {
   const blob = new Blob([content], { type });
   const url = URL.createObjectURL(blob);

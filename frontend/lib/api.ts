@@ -1,5 +1,7 @@
 import type {
   ActionItem,
+  AskResponse,
+  Highlight,
   MeetingCreatePayload,
   MeetingDetail,
   MeetingRow,
@@ -102,6 +104,31 @@ export const api = {
 
   search(q: string): Promise<SearchResponse> {
     return request<SearchResponse>(`/search?q=${encodeURIComponent(q)}`);
+  },
+
+  addHighlight(meetingId: number, body: Partial<Highlight>): Promise<Highlight> {
+    return request<Highlight>(`/meetings/${meetingId}/highlights`, {
+      method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  updateHighlight(id: number, patch: { note?: string; color?: string }): Promise<Highlight> {
+    return request<Highlight>(`/highlights/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(patch),
+    });
+  },
+
+  deleteHighlight(id: number): Promise<void> {
+    return request<void>(`/highlights/${id}`, { method: "DELETE" });
+  },
+
+  ask(meetingId: number, question: string): Promise<AskResponse> {
+    return request<AskResponse>(`/meetings/${meetingId}/ask`, {
+      method: "POST",
+      body: JSON.stringify({ question }),
+    });
   },
 };
 

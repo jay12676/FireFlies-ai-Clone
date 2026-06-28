@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { MeetingDetail } from "@/lib/types";
-import { buildMarkdown, buildText, download, slugify } from "@/lib/export";
+import { buildMarkdown, buildText, download, downloadPdf, slugify } from "@/lib/export";
 import { useToast } from "@/context/ToastContext";
 
 export default function ExportMenu({ meeting }: { meeting: MeetingDetail }) {
@@ -19,11 +19,13 @@ export default function ExportMenu({ meeting }: { meeting: MeetingDetail }) {
   }, []);
 
   const slug = slugify(meeting.title);
-  const doExport = (kind: "md" | "txt") => {
+  const doExport = async (kind: "md" | "txt" | "pdf") => {
     if (kind === "md") {
       download(`${slug}.md`, buildMarkdown(meeting), "text/markdown");
-    } else {
+    } else if (kind === "txt") {
       download(`${slug}.txt`, buildText(meeting), "text/plain");
+    } else {
+      await downloadPdf(meeting);
     }
     notify(`Exported ${kind.toUpperCase()}`);
     setOpen(false);
@@ -50,6 +52,12 @@ export default function ExportMenu({ meeting }: { meeting: MeetingDetail }) {
             className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
           >
             Plain text (.txt)
+          </button>
+          <button
+            onClick={() => doExport("pdf")}
+            className="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700"
+          >
+            PDF (.pdf)
           </button>
         </div>
       )}

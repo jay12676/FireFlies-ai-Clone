@@ -79,6 +79,33 @@ class TagRead(_ORM):
     name: str
 
 
+# ---------- Highlights / comments / soundbites ----------
+class HighlightCreate(BaseModel):
+    segment_id: int | None = None
+    quote: str = ""
+    note: str = ""
+    speaker: str = ""
+    color: str = "yellow"
+    start_ms: int = 0
+    end_ms: int = 0
+
+
+class HighlightUpdate(BaseModel):
+    note: str | None = None
+    color: str | None = None
+
+
+class HighlightRead(_ORM):
+    id: int
+    segment_id: int | None
+    quote: str
+    note: str
+    speaker: str
+    color: str
+    start_ms: int
+    end_ms: int
+
+
 # ---------- Meetings ----------
 class MeetingBase(BaseModel):
     title: str
@@ -131,6 +158,7 @@ class MeetingDetail(_ORM):
     summary: SummaryRead | None = None
     topics: list[TopicRead] = []
     action_items: list[ActionItemRead] = []
+    highlights: list[HighlightRead] = []
     tags: list[TagRead] = []
 
 
@@ -154,3 +182,21 @@ class SearchResponse(BaseModel):
     query: str
     count: int
     hits: list[SearchHit]
+
+
+# ---------- Ask this meeting ----------
+class AskRequest(BaseModel):
+    question: str
+
+
+class AskCitation(BaseModel):
+    segment_id: int
+    speaker: str
+    start_ms: int
+    text: str
+
+
+class AskResponse(BaseModel):
+    question: str
+    answer: str
+    citations: list[AskCitation]

@@ -41,6 +41,30 @@ export interface Tag {
   name: string;
 }
 
+export interface Highlight {
+  id: number;
+  segment_id: number | null;
+  quote: string;
+  note: string;
+  speaker: string;
+  color: string;
+  start_ms: number;
+  end_ms: number;
+}
+
+export interface AskCitation {
+  segment_id: number;
+  speaker: string;
+  start_ms: number;
+  text: string;
+}
+
+export interface AskResponse {
+  question: string;
+  answer: string;
+  citations: AskCitation[];
+}
+
 export interface MeetingRow {
   id: number;
   title: string;
@@ -65,6 +89,7 @@ export interface MeetingDetail {
   summary: Summary | null;
   topics: Topic[];
   action_items: ActionItem[];
+  highlights: Highlight[];
   tags: Tag[];
 }
 

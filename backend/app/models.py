@@ -69,6 +69,9 @@ class Meeting(Base):
     action_items: Mapped[list["ActionItem"]] = relationship(
         back_populates="meeting", cascade="all, delete-orphan", order_by="ActionItem.order_index"
     )
+    highlights: Mapped[list["Highlight"]] = relationship(
+        back_populates="meeting", cascade="all, delete-orphan", order_by="Highlight.start_ms"
+    )
     tags: Mapped[list["Tag"]] = relationship(
         secondary=meeting_tags, back_populates="meetings"
     )
@@ -137,6 +140,30 @@ class ActionItem(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
 
     meeting: Mapped["Meeting"] = relationship(back_populates="action_items")
+
+
+class Highlight(Base):
+    """A highlighted transcript segment, optionally with a comment/note.
+
+    Doubles as a "soundbite": it snapshots the quote, speaker, and time range so
+    the saved clip survives even if the underlying transcript is later replaced.
+    """
+    __tablename__ = "highlights"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    meeting_id: Mapped[int] = mapped_column(ForeignKey("meetings.id", ondelete="CASCADE"))
+    segment_id: Mapped[int | None] = mapped_column(
+        ForeignKey("transcript_segments.id", ondelete="SET NULL"), nullable=True
+    )
+    quote: Mapped[str] = mapped_column(Text, default="")
+    note: Mapped[str] = mapped_column(Text, default="")
+    speaker: Mapped[str] = mapped_column(String(200), default="")
+    color: Mapped[str] = mapped_column(String(20), default="yellow")
+    start_ms: Mapped[int] = mapped_column(Integer, default=0)
+    end_ms: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=_utcnow)
+
+    meeting: Mapped["Meeting"] = relationship(back_populates="highlights")
 
 
 class Tag(Base):

@@ -81,3 +81,51 @@ def test_global_search(client):
     body = r.json()
     assert body["count"] >= 1
     assert "budget" in body["hits"][0]["text"].lower()
+
+
+def test_highlight_crud(client):
+    m = _create(client)
+    seg = m["segments"][0]
+    r = client.post(
+        f"/api/meetings/{m['id']}/highlights",
+        json={
+            "segment_id": seg["id"],
+            "quote": seg["text"],
+            "note": "Important point",
+            "speaker": seg["speaker"],
+            "start_ms": seg["start_ms"],
+        },
+    )
+    assert r.status_code == 201, r.text
+    hid = r.json()["id"]
+
+    # Highlight shows up on the meeting detail.
+    detail = client.get(f"/api/meetings/{m['id']}").json()
+    assert len(detail["highlights"]) == 1
+    assert detail["highlights"][0]["note"] == "Important point"
+
+    # Update the note, then delete.
+    r2 = client.patch(f"/api/highlights/{hid}", json={"note": "Edited"})
+    assert r2.json()["note"] == "Edited"
+    assert client.delete(f"/api/highlights/{hid}").status_code == 204
+    detail2 = client.get(f"/api/meetings/{m['id']}").json()
+    assert detail2["highlights"] == []
+
+
+def test_ask_meeting_general(client):
+    m = _create(client)
+    r = client.post(f"/api/meetings/{m['id']}/ask", json={"question": "What about the budget?"})
+    assert r.status_code == 200, r.text
+    body = r.json()
+    assert body["citations"]
+    assert "budget" in body["answer"].lower()
+
+
+def test_ask_meeting_action_intent(client):
+    m = _create(client)
+    r = client.post(f"/api/meetings/{m['id']}/ask", json={"question": "What are the action items?"})
+    body = r.json()
+    # Even though "action items" isn't literally in the transcript, intent routing
+    # returns the extracted action items.
+    assert "action items" in body["answer"].lower()
+    assert "report" in body["answer"].lower()

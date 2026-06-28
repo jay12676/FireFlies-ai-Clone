@@ -89,3 +89,21 @@ def add_action_item(
     if not item:
         raise HTTPException(status_code=404, detail="Meeting not found")
     return item
+
+
+@router.post("/{meeting_id}/highlights", response_model=schemas.HighlightRead, status_code=201)
+def add_highlight(
+    meeting_id: int, payload: schemas.HighlightCreate, db: Session = Depends(get_db)
+):
+    hl = crud.add_highlight(db, meeting_id, payload)
+    if not hl:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return hl
+
+
+@router.post("/{meeting_id}/ask", response_model=schemas.AskResponse)
+def ask_meeting(meeting_id: int, payload: schemas.AskRequest, db: Session = Depends(get_db)):
+    result = crud.ask_meeting(db, meeting_id, payload.question)
+    if result is None:
+        raise HTTPException(status_code=404, detail="Meeting not found")
+    return result

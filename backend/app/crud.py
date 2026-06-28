@@ -7,6 +7,7 @@ from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
 
 from . import models, schemas
+from .services import ask as ask_service
 from .services import generator, parser
 
 DEFAULT_AUDIO = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
@@ -107,6 +108,7 @@ def get_meeting(db: Session, meeting_id: int) -> models.Meeting | None:
             selectinload(models.Meeting.summary),
             selectinload(models.Meeting.topics),
             selectinload(models.Meeting.action_items),
+            selectinload(models.Meeting.highlights),
             selectinload(models.Meeting.tags),
         )
     )
@@ -223,6 +225,72 @@ def delete_action_item(db: Session, item_id: int) -> bool:
     db.delete(item)
     db.commit()
     return True
+
+
+# ---------- Highlights / comments / soundbites ----------
+def add_highlight(
+    db: Session, meeting_id: int, payload: schemas.HighlightCreate
+) -> models.Highlight | None:
+    meeting = db.get(models.Meeting, meeting_id)
+    if not meeting:
+        return None
+    hl = models.Highlight(
+        meeting_id=meeting_id,
+        segment_id=payload.segment_id,
+        quote=payload.quote,
+        note=payload.note,
+        speaker=payload.speaker,
+        color=payload.color or "yellow",
+        start_ms=payload.start_ms,
+        end_ms=payload.end_ms,
+    )
+    db.add(hl)
+    db.commit()
+    db.refresh(hl)
+    return hl
+
+
+def update_highlight(
+    db: Session, highlight_id: int, payload: schemas.HighlightUpdate
+) -> models.Highlight | None:
+    hl = db.get(models.Highlight, highlight_id)
+    if not hl:
+        return None
+    for key, value in payload.model_dump(exclude_unset=True).items():
+        setattr(hl, key, value)
+    db.commit()
+    db.refresh(hl)
+    return hl
+
+
+def delete_highlight(db: Session, highlight_id: int) -> bool:
+    hl = db.get(models.Highlight, highlight_id)
+    if not hl:
+        return False
+    db.delete(hl)
+    db.commit()
+    return True
+
+
+# ---------- Ask this meeting ----------
+def ask_meeting(db: Session, meeting_id: int, question: str) -> schemas.AskResponse | None:
+    meeting = get_meeting(db, meeting_id)
+    if not meeting:
+        return None
+    summary = meeting.summary.overview if meeting.summary else ""
+    result = ask_service.answer_question(
+        meeting.segments, question, summary, meeting.action_items
+    )
+    return schemas.AskResponse(
+        question=question,
+        answer=result.answer,
+        citations=[
+            schemas.AskCitation(
+                segment_id=c.segment_id, speaker=c.speaker, start_ms=c.start_ms, text=c.text
+            )
+            for c in result.citations
+        ],
+    )
 
 
 # ---------- Search ----------
