@@ -17,9 +17,11 @@ const MAIN: NavItem[] = [
 ];
 
 const SOON: NavItem[] = [
-  { href: "#", label: "Live Bot", icon: "🤖", soon: true },
+  { href: "#", label: "Upload", icon: "📤", soon: true },
+  { href: "#", label: "Tasks", icon: "✅", soon: true },
+  { href: "#", label: "Analytics", icon: "📊", soon: true },
   { href: "#", label: "Integrations", icon: "🔌", soon: true },
-  { href: "#", label: "Team", icon: "👥", soon: true },
+  { href: "#", label: "AskFred AI", icon: "🤖", soon: true },
 ];
 
 export default function Sidebar() {

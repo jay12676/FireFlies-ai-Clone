@@ -22,7 +22,7 @@ export default function AskChat({
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      text: "Ask me anything about this meeting — I'll answer from the transcript and cite the moments.",
+      text: "Hi, I'm Fred 👋 Ask me anything about this meeting — I'll answer from the transcript and cite the exact moments.",
     },
   ]);
   const [input, setInput] = useState("");

@@ -190,8 +190,16 @@ export default function MeetingDetailPage() {
         />
       </div>
 
-      {/* Two-panel body */}
+      {/* Two-panel body — Fireflies layout: AI notes on the left, transcript on the right */}
       <div className="grid min-h-0 flex-1 grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="min-h-[400px] lg:h-[calc(100vh-330px)]">
+          <MeetingTabs
+            meeting={meeting}
+            onSeek={seekTo}
+            onActionItemsChange={setActionItems}
+            onDeleteHighlight={deleteHighlight}
+          />
+        </div>
         <div className="min-h-[400px] lg:h-[calc(100vh-330px)]">
           <TranscriptPanel
             segments={meeting.segments}
@@ -199,14 +207,6 @@ export default function MeetingDetailPage() {
             onSeek={seekTo}
             highlights={meeting.highlights}
             onAddHighlight={addHighlight}
-          />
-        </div>
-        <div className="min-h-[400px] lg:h-[calc(100vh-330px)]">
-          <MeetingTabs
-            meeting={meeting}
-            onSeek={seekTo}
-            onActionItemsChange={setActionItems}
-            onDeleteHighlight={deleteHighlight}
           />
         </div>
       </div>
