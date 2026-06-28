@@ -47,10 +47,10 @@ export default function Navbar() {
         </button>
         <div className="flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-500 text-sm font-semibold text-white">
-            GM
+            J
           </div>
           <div className="hidden text-sm leading-tight lg:block">
-            <p className="font-medium">Gyana M.</p>
+            <p className="font-medium">Jayant</p>
             <p className="text-xs text-gray-500">Free plan</p>
           </div>
         </div>

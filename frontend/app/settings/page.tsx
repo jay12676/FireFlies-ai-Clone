@@ -35,10 +35,10 @@ export default function SettingsPage() {
         <div className="rounded-xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-gray-900">
           <div className="flex items-center gap-4">
             <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-lg font-semibold text-white">
-              GM
+              J
             </div>
             <div>
-              <p className="font-medium">Gyana M.</p>
+              <p className="font-medium">Jayant</p>
               <p className="text-sm text-gray-500">gyanamatech@gmail.com</p>
               <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
                 Free plan · default user
