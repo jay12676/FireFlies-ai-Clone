@@ -39,7 +39,7 @@ export default function SettingsPage() {
             </div>
             <div>
               <p className="font-medium">Jayant</p>
-              <p className="text-sm text-gray-500">gyanamatech@gmail.com</p>
+              <p className="text-sm text-gray-500">kotharijayant73@gmail.com</p>
               <span className="mt-1 inline-block rounded-full bg-gray-100 px-2 py-0.5 text-xs dark:bg-gray-800">
                 Free plan · default user
               </span>
