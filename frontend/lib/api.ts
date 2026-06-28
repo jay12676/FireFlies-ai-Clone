@@ -151,11 +151,14 @@ export function formatTimestamp(ms: number): string {
 
 export function formatDate(iso: string): string {
   const d = new Date(iso);
-  return d.toLocaleDateString(undefined, {
-    month: "short",
+  // Consistent, unambiguous: e.g. "Sat, 27 Jun 2026, 2:30 PM".
+  return d.toLocaleString(undefined, {
+    weekday: "short",
     day: "numeric",
+    month: "short",
     year: "numeric",
     hour: "numeric",
     minute: "2-digit",
+    hour12: true,
   });
 }

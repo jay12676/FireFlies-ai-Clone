@@ -6,7 +6,7 @@ On app startup, ``seed_if_empty`` runs automatically when the DB has no meetings
 from __future__ import annotations
 
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime, timedelta
 
 from sqlalchemy.orm import Session
 
@@ -16,7 +16,14 @@ from . import models
 AUDIO = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 AUDIO2 = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
 
-_now = datetime.now(timezone.utc)
+# Naive local datetimes so the displayed clock time stays exactly as set
+# (no timezone conversion surprises in the browser).
+_TODAY = datetime.now().replace(second=0, microsecond=0)
+
+
+def _at(days_ago: int, hour: int, minute: int) -> datetime:
+    """A clean meeting time: `days_ago` days back, at the given hour:minute."""
+    return (_TODAY - timedelta(days=days_ago)).replace(hour=hour, minute=minute)
 
 
 def _segments(rows: list[tuple[str, int, str]]) -> list[models.TranscriptSegment]:
@@ -66,7 +73,7 @@ MEETINGS: list[dict] = [
     {
         "title": "Q3 Product Roadmap Planning",
         "description": "Aligning engineering and design on Q3 priorities.",
-        "date": _now - timedelta(days=1, hours=3),
+        "date": _at(1, 14, 0),  # yesterday, 2:00 PM
         "audio_url": AUDIO,
         "tags": ["product", "roadmap", "planning"],
         "participants": [
@@ -102,7 +109,7 @@ MEETINGS: list[dict] = [
     {
         "title": "Engineering Daily Standup",
         "description": "Quick sync on yesterday's progress and today's plan.",
-        "date": _now - timedelta(hours=5),
+        "date": _at(0, 9, 15),  # today, 9:15 AM
         "audio_url": AUDIO2,
         "tags": ["engineering", "standup"],
         "participants": [
@@ -136,7 +143,7 @@ MEETINGS: list[dict] = [
     {
         "title": "Acme Corp Customer Discovery Call",
         "description": "Discovery call with a prospective enterprise customer.",
-        "date": _now - timedelta(days=2, hours=1),
+        "date": _at(2, 11, 30),  # 2 days ago, 11:30 AM
         "audio_url": AUDIO,
         "tags": ["sales", "customer", "discovery"],
         "participants": [
@@ -171,7 +178,7 @@ MEETINGS: list[dict] = [
     {
         "title": "Weekly 1:1 — Sarah & Dev",
         "description": "Manager and report weekly check-in.",
-        "date": _now - timedelta(days=3, hours=2),
+        "date": _at(3, 16, 0),  # 3 days ago, 4:00 PM
         "audio_url": AUDIO2,
         "tags": ["1-on-1", "people"],
         "participants": [
@@ -202,7 +209,7 @@ MEETINGS: list[dict] = [
     {
         "title": "Sprint 14 Retrospective",
         "description": "What went well, what didn't, and improvements for next sprint.",
-        "date": _now - timedelta(days=4),
+        "date": _at(4, 10, 0),  # 4 days ago, 10:00 AM
         "audio_url": AUDIO,
         "tags": ["engineering", "retro", "agile"],
         "participants": [
