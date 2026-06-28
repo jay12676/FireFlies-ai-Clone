@@ -16,14 +16,15 @@ from . import models
 AUDIO = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3"
 AUDIO2 = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"
 
-# Naive local datetimes so the displayed clock time stays exactly as set
-# (no timezone conversion surprises in the browser).
-_TODAY = datetime.now().replace(second=0, microsecond=0)
+# Sample meetings are pinned to a fixed week ending 27 Jun 2026 (the assignment
+# date). Naive datetimes so the displayed clock time stays exactly as set, with
+# no timezone conversion in the browser.
+_REF = datetime(2026, 6, 27)
 
 
 def _at(days_ago: int, hour: int, minute: int) -> datetime:
-    """A clean meeting time: `days_ago` days back, at the given hour:minute."""
-    return (_TODAY - timedelta(days=days_ago)).replace(hour=hour, minute=minute)
+    """A clean meeting time: `days_ago` days before the reference date."""
+    return (_REF - timedelta(days=days_ago)).replace(hour=hour, minute=minute)
 
 
 def _segments(rows: list[tuple[str, int, str]]) -> list[models.TranscriptSegment]:
