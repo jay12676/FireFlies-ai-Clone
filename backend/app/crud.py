@@ -1,7 +1,7 @@
 """Database operations — the only layer that touches the ORM directly."""
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session, selectinload
@@ -118,7 +118,9 @@ def create_meeting(db: Session, payload: schemas.MeetingCreate) -> models.Meetin
     meeting = models.Meeting(
         title=payload.title,
         description=payload.description,
-        date=payload.date or datetime.now(timezone.utc),
+        # Capture the actual local creation time (naive, like the seed data) so
+        # the displayed clock time matches when the meeting was created.
+        date=payload.date or datetime.now(),
         duration_seconds=payload.duration_seconds,
         audio_url=payload.audio_url or DEFAULT_AUDIO,
     )
