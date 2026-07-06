@@ -62,6 +62,12 @@ Zoom/Meet/calendar/CRM integrations, team/sharing, real authentication
 
 ## Architecture Overview
 
+> **Visual diagrams & full write-up:** see [`docs/diagrams/hld_architecture.png`](docs/diagrams/hld_architecture.png)
+> (high-level design), [`docs/diagrams/er_diagram.png`](docs/diagrams/er_diagram.png) (database ER
+> diagram), and [`docs/Fireflies_Clone_Explanation.pdf`](docs/Fireflies_Clone_Explanation.pdf) — a
+> complete explanation of how it works, every file and why it exists, the request workflow, schema,
+> and API.
+
 ```
 ┌─────────────────────────┐         HTTP/JSON (/api)        ┌──────────────────────────┐
 │   Next.js Frontend       │  ───────────────────────────▶  │   FastAPI Backend         │

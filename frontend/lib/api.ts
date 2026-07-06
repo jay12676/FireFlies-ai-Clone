@@ -11,6 +11,11 @@ import type {
 
 const BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
+// INTERVIEW HINT — a single typed API client is the frontend's only door to the
+// backend. Every call goes through request(): it prefixes /api, sets JSON headers,
+// unwraps FastAPI's { detail } error shape into a thrown Error, and handles 204
+// (no-content) responses. Components never call fetch() directly, so auth headers,
+// base-URL config, and error handling live in exactly one place.
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}/api${path}`, {
     ...init,

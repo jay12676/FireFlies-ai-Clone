@@ -31,7 +31,15 @@ def _get_or_create_tags(db: Session, names: list[str]) -> list[models.Tag]:
 
 # ---------- Transcript + generation ----------
 def _apply_transcript(db: Session, meeting: models.Meeting, content: str, filename: str) -> None:
-    """Parse a transcript, replace segments, and regenerate summary/topics/actions."""
+    """Parse a transcript, replace segments, and regenerate summary/topics/actions.
+
+    INTERVIEW HINT — why "replace everything": a transcript is the single source of
+    truth for a meeting's AI content. When a new transcript arrives we clear the old
+    segments/summary/topics/action-items and regenerate them, so the AI output can
+    never drift out of sync with the words that were actually spoken. This keeps the
+    parse → generate pipeline idempotent (re-uploading the same file yields the same
+    result — see the deterministic generator).
+    """
     segments = parser.parse_transcript(content, filename)
 
     meeting.segments.clear()
@@ -75,6 +83,9 @@ def list_meetings(
     tag: str | None = None,
     sort: str = "recent",
 ) -> list[models.Meeting]:
+    # INTERVIEW HINT — selectinload avoids the N+1 query problem: instead of one
+    # query per meeting to fetch its participants/tags/action-items, SQLAlchemy
+    # batches them into a single extra query per relationship (WHERE meeting_id IN …).
     stmt = select(models.Meeting).options(
         selectinload(models.Meeting.participants),
         selectinload(models.Meeting.tags),

@@ -41,7 +41,14 @@ def _to_ms(h: str, m: str, s: str, ms: str) -> int:
 
 
 def parse_transcript(content: str, filename: str = "transcript.txt") -> list[ParsedSegment]:
-    """Parse raw transcript ``content`` into ordered segments."""
+    """Parse raw transcript ``content`` into ordered segments.
+
+    INTERVIEW HINT — one public entry point, three private format handlers. We pick
+    the handler by file extension first, then fall back to sniffing the content (a
+    leading ``[`` / ``{`` ⇒ JSON, an ``-->`` arrow ⇒ VTT). Every handler returns the
+    same ``ParsedSegment`` shape, so the rest of the app never cares which format the
+    user uploaded — that's the Strategy pattern / a normalization layer.
+    """
     name = (filename or "").lower()
     stripped = content.strip()
     if name.endswith(".json") or stripped.startswith("[") or stripped.startswith("{"):

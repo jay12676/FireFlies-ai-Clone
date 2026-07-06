@@ -76,7 +76,15 @@ def _sentences(segments: list[ParsedSegment]) -> list[tuple[str, ParsedSegment]]
 
 
 def generate_summary(segments: list[ParsedSegment], max_sentences: int = 5) -> str:
-    """Rank sentences by keyword frequency and join the highest-scoring ones."""
+    """Rank sentences by keyword frequency and join the highest-scoring ones.
+
+    INTERVIEW HINT — this is classic *extractive* summarization (frequency-based,
+    like a mini TextRank/Luhn): count how often each meaningful word appears, score
+    each sentence by the average frequency of its words, take the top N, then re-sort
+    them into reading order so the summary flows. It's deterministic (no LLM, no API
+    key, no cost) — the exact tradeoff we chose for an offline, reproducible demo.
+    Upgrade path: swap this one function for an LLM call; nothing else changes.
+    """
     sentences = _sentences(segments)
     if not sentences:
         return ""

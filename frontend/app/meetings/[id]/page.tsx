@@ -42,6 +42,13 @@ export default function MeetingDetailPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // INTERVIEW HINT — this is one half of the two-way sync (the signature Fireflies
+  // feature). The <audio> element is the single source of truth for time:
+  //   • transcript/topic/citation click → seekTo(ms) → sets audio.currentTime (below)
+  //   • audio playback → onTimeUpdate → setCurrentMs → TranscriptPanel highlights the
+  //     line whose [start_ms, next.start_ms) window contains currentMs.
+  // We store time in milliseconds everywhere; the audio API uses seconds, so we
+  // divide by 1000 only at this boundary.
   const seekTo = useCallback((ms: number) => {
     const audio = audioRef.current;
     if (!audio) return;

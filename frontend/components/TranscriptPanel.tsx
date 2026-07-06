@@ -26,6 +26,10 @@ export default function TranscriptPanel({
   const containerRef = useRef<HTMLDivElement>(null);
   const activeRef = useRef<HTMLDivElement>(null);
 
+  // INTERVIEW HINT — "which line is playing right now?" Segments are ordered by time,
+  // so we walk forward and keep the last segment whose start_ms is <= currentMs; the
+  // moment one starts in the future we stop. useMemo recomputes this only when the
+  // segments or the current time change (not on every render).
   const activeId = useMemo(() => {
     let id: number | null = null;
     for (const s of segments) {
