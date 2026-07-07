@@ -174,6 +174,25 @@ Interactive API docs are available at **`http://localhost:8000/docs`** (Swagger 
 
 ### Prerequisites
 - Python 3.11+ and Node.js 18+
+- One-time setup: create the backend virtualenv and install dependencies (`backend`:
+  `python -m venv .venv` + `pip install -r requirements.txt`) and install frontend
+  dependencies (`frontend`: `npm install`) — see steps 1–2 below.
+
+### Quick start (after one-time setup)
+
+Once both dependency installs above have been done once, use the helper script to
+start both servers together and open the app automatically:
+
+```bash
+./run.sh          # Git Bash / WSL / macOS / Linux
+```
+```powershell
+.\run.ps1         # Windows PowerShell (opens each server in its own window)
+```
+
+Both scripts wait for `http://localhost:8000/api/health` and `http://localhost:3000/`
+to respond before opening the browser. To stop `run.sh`'s background servers, kill the
+PIDs it prints; `run.ps1`'s servers run in their own windows — just close them.
 
 ### 1. Backend
 

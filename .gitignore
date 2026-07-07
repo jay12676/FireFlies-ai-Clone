@@ -24,3 +24,7 @@ dist/
 Thumbs.db
 .vscode/
 .idea/
+
+# run.sh runtime logs
+.run-backend.log
+.run-frontend.log
