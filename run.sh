@@ -2,6 +2,8 @@
 # Starts both the FastAPI backend and the Next.js frontend in the background,
 # waits until both respond, opens the app in the default browser, then tails
 # both logs. Press Ctrl+C to stop watching (servers keep running in background).
+# Safe to re-run any time: it first kills anything already using ports
+# 8000/3000/3001, so leftover processes from a previous run never conflict.
 #
 # Usage:  ./run.sh   (from Git Bash / WSL / any POSIX shell)
 
@@ -9,6 +11,15 @@ set -e
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BACKEND_LOG="$ROOT/backend/.run-backend.log"
 FRONTEND_LOG="$ROOT/frontend/.run-frontend.log"
+
+echo "Making sure ports 8000/3000/3001 are free..."
+for PORT in 8000 3000 3001; do
+  PIDS=$(netstat -ano 2>/dev/null | grep ":$PORT " | grep LISTENING | awk '{print $5}' | sort -u)
+  for P in $PIDS; do
+    taskkill //PID "$P" //F >/dev/null 2>&1 && echo "  Closed a leftover process on port $PORT (PID $P)"
+  done
+done
+sleep 1
 
 echo "Starting backend (FastAPI) on http://localhost:8000 ..."
 (
